@@ -18,10 +18,9 @@ class Cita:
             self.precioCita *= 0.7
 
     def cancelar(self, usuario):
-        if self.estado == "pendiente":
-            if usuario.isAdmin or usuario.cedula == self.infoCliente.cedula:
-                self.estado = "cancelada"
-                return True
+        if usuario.puede_cancelar(self):
+            self.estado = "cancelada"
+            return True
         return False
 
     def atender(self):

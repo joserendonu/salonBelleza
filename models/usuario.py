@@ -1,14 +1,37 @@
 class Usuario:
-    def __init__(self, tipo, cedula, nombre, apellido, telefono, fechaNacimiento, isEmployee=False, isAdmin=False):
-        self.tipo = tipo  # "Administrador", "Empleado", "Cliente"
+    def __init__(self, cedula, nombre, apellido, telefono, fechaNacimiento, isAdmin=False, isEmployee=False):
         self.cedula = cedula
         self.nombre = nombre
         self.apellido = apellido
         self.telefono = telefono
         self.fechaNacimiento = fechaNacimiento
-        self.servicio = None
-        self.isEmployee = isEmployee
         self.isAdmin = isAdmin
+        self.isEmployee = isEmployee
 
-    def __str__(self):
-        return f"{self.tipo}: {self.nombre} {self.apellido} ({self.cedula})"
+    def tipo(self):
+        return "Usuario"
+    # ...resto del código...
+
+class Administrador(Usuario):
+    def __init__(self, cedula, nombre, apellido, telefono, fechaNacimiento):
+        super().__init__(cedula, nombre, apellido, telefono, fechaNacimiento, isAdmin=True, isEmployee=False)
+    def tipo(self):
+        return "Administrador"
+    # ...resto del código...
+
+class Empleado(Usuario):
+    def __init__(self, cedula, nombre, apellido, telefono, fechaNacimiento):
+        super().__init__(cedula, nombre, apellido, telefono, fechaNacimiento, isAdmin=False, isEmployee=True)
+    def tipo(self):
+        return "Empleado"
+    # ...resto del código...
+
+class Cliente(Usuario):
+    def __init__(self, cedula, nombre, apellido, telefono, fechaNacimiento, isEmployee=False):
+        super().__init__(cedula, nombre, apellido, telefono, fechaNacimiento, isAdmin=False, isEmployee=isEmployee)
+    def tipo(self):
+        return "Cliente"
+
+    def puede_cancelar(self, cita):
+        # Solo si es el cliente y la cita está pendiente
+        return cita.estado == "pendiente" and cita.infoCliente.cedula == self.cedula

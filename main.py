@@ -1,5 +1,6 @@
 from data.seed_data import usuarios, servicios
 from logic.gestion_citas import crear_cita, listar_citas
+from models import usuario
 from models.cita import Cita
 import datetime
 
@@ -46,6 +47,7 @@ def menu_empleado(usuario):
         print(f"\n=== Menú Empleado ({usuario.nombre}) ===")
         print("1. Ver citas asignadas")
         print("2. Atender cita")
+        print("9. Cambiar usuario")
         print("0. Salir")
         opcion = input("Seleccione una opción: ")
 
@@ -57,11 +59,16 @@ def menu_empleado(usuario):
         elif opcion == "2":
             cc = input("Ingrese cédula del cliente de la cita a atender: ")
             for c in listar_citas():
+                # Permitir atender si el usuario es el encargado y también el cliente
                 if c.infoCliente.cedula == cc and c.ccEncargado == usuario.cedula:
                     if c.atender():
                         print("✅ Cita atendida:", c)
                     else:
                         print("⚠️ No se pudo atender la cita.")
+
+        elif opcion == "9":
+            return  # Regresa al menú inicial
+
         elif opcion == "0":
             break
         else:
@@ -73,13 +80,15 @@ def menu_admin(usuario):
         print(f"\n=== Menú Administrador ({usuario.nombre}) ===")
         print("1. Ver todas las citas")
         print("2. Cancelar cita")
+        print("3. Asignar cita")
+        print("4. Crear cita para mí")
+        print("9. Cambiar usuario")
         print("0. Salir")
         opcion = input("Seleccione una opción: ")
 
         if opcion == "1":
             for c in listar_citas():
                 print(c)
-
         elif opcion == "2":
             cc = input("Ingrese cédula del cliente de la cita a cancelar: ")
             for c in listar_citas():
@@ -88,32 +97,60 @@ def menu_admin(usuario):
                         print("✅ Cita cancelada:", c)
                     else:
                         print("⚠️ No se pudo cancelar la cita.")
-
+        elif opcion == "3":
+            # ...asignar cita a otro usuario...
+            pass
+        elif opcion == "4":
+            print("\n--- Crear cita para administrador ---")
+            for i, s in enumerate(servicios):
+                print(f"{i+1}. {s}")
+            idx_servicio = int(input("Seleccione servicio: ")) - 1
+            servicio = servicios[idx_servicio]
+            empleados = [u for u in usuarios if u.isEmployee]
+            for i, e in enumerate(empleados):
+                print(f"{i+1}. {e.nombre} {e.apellido} ({e.cedula})")
+            idx_empleado = int(input("Seleccione empleado: ")) - 1
+            empleado = empleados[idx_empleado]
+            fecha = input("Ingrese fecha (YYYY-MM-DD): ")
+            cita = crear_cita(usuario, servicio, empleado, fecha)
+            print("✅ Cita creada:", cita)
+        elif opcion == "9":
+            return
         elif opcion == "0":
             break
         else:
             print("Opción inválida")
 
 
+
 def main():
-    print("=== SALÓN DE BELLEZA ===")
-    print("Usuarios disponibles para login (cedula):")
-    for u in usuarios:
-        print(f"{u.cedula} - {u.tipo} ({u.nombre})")
+    while True:
+        print("=== SALÓN DE BELLEZA ===")
+        print("Usuarios disponibles para login:")
+        for i, u in enumerate(usuarios):
+            print(f"{i+1}. {u.cedula} - {u.tipo()} ({u.nombre})")
 
-    ced = input("\nIngrese su cédula: ")
-    usuario = next((u for u in usuarios if u.cedula == ced), None)
+        try:
+            idx = int(input("\nSeleccione el número de usuario: ")) - 1
+            usuario = usuarios[idx]
+        except (ValueError, IndexError):
+            print("Selección inválida.")
+            continue
 
-    if not usuario:
-        print("Usuario no encontrado.")
-        return
-
-    if usuario.isAdmin:
-        menu_admin(usuario)
-    elif usuario.isEmployee:
-        menu_empleado(usuario)
-    else:
-        menu_cliente(usuario)
+        # Si es cliente y empleado, preguntar el menú
+        if usuario.tipo() == "Cliente" and hasattr(usuario, "isEmployee") and usuario.isEmployee:
+            print("\nEste usuario es Cliente y Empleado.")
+            rol = input("¿Desea entrar como (1) Cliente o (2) Empleado? ")
+            if rol == "2":
+                menu_empleado(usuario)
+            else:
+                menu_cliente(usuario)
+        elif usuario.tipo() == "Administrador":
+            menu_admin(usuario)
+        elif usuario.tipo() == "Empleado":
+            menu_empleado(usuario)
+        else:
+            menu_cliente(usuario)
 
 
 if __name__ == "__main__":
