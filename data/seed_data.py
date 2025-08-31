@@ -1,3 +1,5 @@
+# Autores Samuel Diaz, Jonathan Urriago, Sara Peña
+
 from models.usuario import Administrador, Empleado, Cliente
 from models.servicio import Servicio
 

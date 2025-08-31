@@ -1,3 +1,5 @@
+# Autores Samuel Diaz, Jonathan Urriago, Sara Peña
+
 class Usuario:
     def __init__(self, cedula, nombre, apellido, telefono, fechaNacimiento, isAdmin=False, isEmployee=False):
         self.cedula = cedula

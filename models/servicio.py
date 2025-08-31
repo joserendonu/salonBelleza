@@ -1,3 +1,5 @@
+# Autores Samuel Diaz, Jonathan Urriago, Sara Peña
+
 class Servicio:
     def __init__(self, codigo, descripcion, precio, duracion):
         self.codigo = codigo

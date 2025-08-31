@@ -1,3 +1,4 @@
+# Autores Samuel Diaz, Jonathan Urriago, Sara Peña
 from data.seed_data import usuarios, servicios
 from logic.gestion_citas import crear_cita, listar_citas
 from models import usuario
@@ -33,7 +34,7 @@ def menu_cliente(usuario):
         elif opcion == "3":
             print("\n--- Mis citas ---")
             for c in listar_citas():
-                if c.infoCliente.cedula == usuario.cedula:
+                if c.get_infoCliente().cedula == usuario.cedula:
                     print(c)
 
         elif opcion == "0":
@@ -53,14 +54,12 @@ def menu_empleado(usuario):
 
         if opcion == "1":
             for c in listar_citas():
-                if c.ccEncargado == usuario.cedula:
+                if c.get_ccEncargado() == usuario.cedula:
                     print(c)
-
         elif opcion == "2":
             cc = input("Ingrese cédula del cliente de la cita a atender: ")
             for c in listar_citas():
-                # Permitir atender si el usuario es el encargado y también el cliente
-                if c.infoCliente.cedula == cc and c.ccEncargado == usuario.cedula:
+                if c.get_infoCliente().cedula == cc and c.get_ccEncargado() == usuario.cedula:
                     if c.atender():
                         print("✅ Cita atendida:", c)
                     else:
@@ -92,13 +91,30 @@ def menu_admin(usuario):
         elif opcion == "2":
             cc = input("Ingrese cédula del cliente de la cita a cancelar: ")
             for c in listar_citas():
-                if c.infoCliente.cedula == cc:
+                if c.get_infoCliente().cedula == cc:
                     if c.cancelar(usuario):
                         print("✅ Cita cancelada:", c)
                     else:
                         print("⚠️ No se pudo cancelar la cita.")
         elif opcion == "3":
-            # ...asignar cita a otro usuario...
+            print("\n--- Asignar nueva cita ---")
+            clientes = [u for u in usuarios if not u.isEmployee or u.tipo() == "Cliente"]
+            for i, c in enumerate(clientes):
+                print(f"{i+1}. {c.nombre} {c.apellido} ({c.cedula})")
+            idx_cliente = int(input("Seleccione cliente: ")) - 1
+            cliente = clientes[idx_cliente]
+            for i, s in enumerate(servicios):
+                print(f"{i+1}. {s}")
+            idx_servicio = int(input("Seleccione servicio: ")) - 1
+            servicio = servicios[idx_servicio]
+            empleados = [u for u in usuarios if u.isEmployee]
+            for i, e in enumerate(empleados):
+                print(f"{i+1}. {e.nombre} {e.apellido} ({e.cedula})")
+            idx_empleado = int(input("Seleccione empleado: ")) - 1
+            empleado = empleados[idx_empleado]
+            fecha = input("Ingrese fecha (YYYY-MM-DD): ")
+            cita = crear_cita(cliente, servicio, empleado, fecha)
+            print("✅ Cita asignada:", cita)
             pass
         elif opcion == "4":
             print("\n--- Crear cita para administrador ---")

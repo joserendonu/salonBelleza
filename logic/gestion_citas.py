@@ -1,3 +1,4 @@
+# Autores Samuel Diaz, Jonathan Urriago, Sara Peña
 from models.cita import Cita
 
 citas = []
